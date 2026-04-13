@@ -1,0 +1,49 @@
+# VECTRACE - Local Setup & Execution Guide
+
+## Key Features
+- **Dynamic Knowledge DAG**: Interactive visualization of physics concepts and mastery levels.
+- **Personalized Learning Path**: Roadmap generated based on individual user mastery and prerequisites.
+- **AI-Driven Study Insights**: Automated remediation suggestions based on quiz performance.
+- **Action Plan**: Detailed analysis of error patterns (Conceptual vs. Procedural) with specific improvement steps.
+- **JEE-Level Content**: High-quality reading material tailored for competitive physics exams.
+- **Admin Debug Dashboard**: Real-time monitoring of Knowledge DAG states and AI agent payloads.
+
+## Local Setup Instructions
+
+### 1. Prerequisites
+- **Node.js**: Version 18.x or higher.
+- **npm**: Version 9.x or higher.
+- **Gemini API Key**: Required for AI-driven features. Get one at [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+### 2. Environment Configuration
+When cloning locally, you **must** set up your environment variables:
+1. Copy `.env.example` to a new file named `.env`.
+2. Update the following variables in `.env`:
+   - `GEMINI_API_KEY`: Paste your API key here.
+   - `VITE_GEMINI_API_KEY`: (If using client-side calls) Duplicate the key here.
+   - `APP_URL`: Set to `http://localhost:3000` for local development.
+
+### 3. Installation
+```bash
+npm install
+```
+
+### 4. Running the App
+```bash
+# Start development server
+npm run dev
+```
+The app will be available at `http://localhost:3000`.
+
+### 5. Production Build
+```bash
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
+```
+
+## Troubleshooting
+- **API Errors**: If AI suggestions fail to load, verify your `GEMINI_API_KEY` in the `.env` file.
+- **Port Conflicts**: If port 3000 is in use, Vite will automatically pick the next available port. Check the terminal output for the correct URL.

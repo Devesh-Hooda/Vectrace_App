@@ -1,0 +1,190 @@
+{
+  "aarav.beginner@vectrace.ai": {
+    "user_id": "user_weak_001",
+    "name": "Aarav (Beginner)",
+    "graph_state": {
+      "vector_addition": {
+        "mastery": 0.312,
+        "attempts": 5,
+        "conceptual_error_count": 3,
+        "procedural_error_count": 1,
+        "guess_count": 1,
+        "prerequisites": []
+      },
+      "unit_vectors": {
+        "mastery": 0.348,
+        "attempts": 4,
+        "conceptual_error_count": 2,
+        "procedural_error_count": 1,
+        "guess_count": 1,
+        "prerequisites": ["vector_addition"]
+      },
+      "displacement": {
+        "mastery": 0.402,
+        "attempts": 6,
+        "conceptual_error_count": 3,
+        "procedural_error_count": 2,
+        "guess_count": 1,
+        "prerequisites": ["vector_addition"]
+      },
+      "velocity": {
+        "mastery": 0.368,
+        "attempts": 6,
+        "conceptual_error_count": 3,
+        "procedural_error_count": 1,
+        "guess_count": 2,
+        "prerequisites": ["displacement"]
+      },
+      "acceleration": {
+        "mastery": 0.341,
+        "attempts": 5,
+        "conceptual_error_count": 3,
+        "procedural_error_count": 1,
+        "guess_count": 1,
+        "prerequisites": ["velocity"]
+      },
+      "equations_of_motion": {
+        "mastery": 0.295,
+        "attempts": 4,
+        "conceptual_error_count": 2,
+        "procedural_error_count": 1,
+        "guess_count": 1,
+        "prerequisites": ["acceleration"]
+      },
+      "projectile_motion": {
+        "mastery": 0.276,
+        "attempts": 4,
+        "conceptual_error_count": 3,
+        "procedural_error_count": 0,
+        "guess_count": 1,
+        "prerequisites": ["velocity", "acceleration"]
+      },
+      "horizontal_motion": {
+        "mastery": 0.334,
+        "attempts": 3,
+        "conceptual_error_count": 2,
+        "procedural_error_count": 0,
+        "guess_count": 1,
+        "prerequisites": ["projectile_motion"]
+      },
+      "vertical_motion": {
+        "mastery": 0.321,
+        "attempts": 3,
+        "conceptual_error_count": 2,
+        "procedural_error_count": 0,
+        "guess_count": 1,
+        "prerequisites": ["projectile_motion"]
+      },
+      "range": {
+        "mastery": 0.258,
+        "attempts": 2,
+        "conceptual_error_count": 2,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["horizontal_motion", "vertical_motion"]
+      },
+      "time_of_flight": {
+        "mastery": 0.271,
+        "attempts": 2,
+        "conceptual_error_count": 1,
+        "procedural_error_count": 0,
+        "guess_count": 1,
+        "prerequisites": ["vertical_motion"]
+      }
+    }
+  },
+  "meera.advanced@vectrace.ai": {
+    "user_id": "user_strong_001",
+    "name": "Meera (Advanced)",
+    "graph_state": {
+      "vector_addition": {
+        "mastery": 0.925,
+        "attempts": 2,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": []
+      },
+      "unit_vectors": {
+        "mastery": 0.884,
+        "attempts": 2,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 1,
+        "guess_count": 0,
+        "prerequisites": ["vector_addition"]
+      },
+      "displacement": {
+        "mastery": 0.952,
+        "attempts": 1,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["vector_addition"]
+      },
+      "velocity": {
+        "mastery": 0.918,
+        "attempts": 2,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["displacement"]
+      },
+      "acceleration": {
+        "mastery": 0.891,
+        "attempts": 2,
+        "conceptual_error_count": 1,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["velocity"]
+      },
+      "equations_of_motion": {
+        "mastery": 0.845,
+        "attempts": 3,
+        "conceptual_error_count": 1,
+        "procedural_error_count": 1,
+        "guess_count": 0,
+        "prerequisites": ["acceleration"]
+      },
+      "projectile_motion": {
+        "mastery": 0.876,
+        "attempts": 2,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 1,
+        "guess_count": 0,
+        "prerequisites": ["velocity", "acceleration"]
+      },
+      "horizontal_motion": {
+        "mastery": 0.934,
+        "attempts": 1,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["projectile_motion"]
+      },
+      "vertical_motion": {
+        "mastery": 0.921,
+        "attempts": 1,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["projectile_motion"]
+      },
+      "range": {
+        "mastery": 0.858,
+        "attempts": 2,
+        "conceptual_error_count": 1,
+        "procedural_error_count": 0,
+        "guess_count": 0,
+        "prerequisites": ["horizontal_motion", "vertical_motion"]
+      },
+      "time_of_flight": {
+        "mastery": 0.871,
+        "attempts": 2,
+        "conceptual_error_count": 0,
+        "procedural_error_count": 1,
+        "guess_count": 0,
+        "prerequisites": ["vertical_motion"]
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "aarav.beginner@vectrace.ai": {
+    "last_quiz": {
+      "quiz_id": "qz_001",
+      "timestamp": "2026-04-12T22:30:00Z",
+      "questions": [
+        {
+          "question_id": "q1",
+          "text": "A vector has a magnitude of 5 units and makes an angle of 30° with the x-axis. What is its y-component?",
+          "answer_type": "multiple_choice",
+          "user_answer": "4.33",
+          "correct_answer": "2.5",
+          "error_type": "conceptual",
+          "weightage": 0.035,
+          "topic": "vector_addition"
+        },
+        {
+          "question_id": "q2",
+          "text": "Calculate the displacement of an object moving in a circle of radius R after half a revolution.",
+          "answer_type": "numeric",
+          "user_answer": "πR",
+          "correct_answer": "2R",
+          "error_type": "conceptual",
+          "weightage": 0.035,
+          "topic": "displacement"
+        },
+        {
+          "question_id": "q3",
+          "text": "If v = 2t + 5, find the acceleration at t = 2s.",
+          "answer_type": "numeric",
+          "user_answer": "9",
+          "correct_answer": "2",
+          "error_type": "procedural",
+          "weightage": 0.015,
+          "topic": "acceleration"
+        }
+      ]
+    }
+  },
+  "meera.advanced@vectrace.ai": {
+    "last_quiz": {
+      "quiz_id": "qz_002",
+      "timestamp": "2026-04-12T21:45:00Z",
+      "questions": [
+        {
+          "question_id": "q1",
+          "text": "Find the angle between A = i + j and B = i - j.",
+          "answer_type": "multiple_choice",
+          "user_answer": "90°",
+          "correct_answer": "90°",
+          "error_type": "none",
+          "weightage": 0.0,
+          "topic": "vector_addition"
+        }
+      ]
+    }
+  }
+}

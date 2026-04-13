@@ -1,0 +1,149 @@
+{
+  "quiz_id": "vectrace_demo_kinematics",
+  "questions": [
+    {
+      "id": "Q1",
+      "concept_id": "vector_addition",
+      "question_text": "Two perpendicular vectors of magnitudes 3 and 4 units are added. What is the magnitude of the resultant?",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "7", "type": "conceptual_error", "weight": -0.035},
+        {"id": "B", "text": "5", "type": "correct", "weight": 0.02},
+        {"id": "C", "text": "1", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "12", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q2",
+      "concept_id": "displacement",
+      "question_text": "A particle moves 5m east and then 5m west. What is its displacement?",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "10m", "type": "conceptual_error", "weight": -0.035},
+        {"id": "B", "text": "0m", "type": "correct", "weight": 0.02},
+        {"id": "C", "text": "5m", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Cannot be determined", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q3",
+      "concept_id": "velocity",
+      "question_text": "Velocity is defined as:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "Rate of change of distance", "type": "conceptual_error", "weight": -0.035},
+        {"id": "B", "text": "Rate of change of displacement", "type": "correct", "weight": 0.02},
+        {"id": "C", "text": "Distance per unit time", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Speed of object", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q4",
+      "concept_id": "acceleration",
+      "question_text": "Acceleration is:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "Rate of change of velocity", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "Rate of change of speed", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Velocity per unit time", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Distance per unit time squared", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q5",
+      "concept_id": "equations_of_motion",
+      "question_text": "Which equation is valid for uniformly accelerated motion?",
+      "difficulty": "medium",
+      "options": [
+        {"id": "A", "text": "v = u + at", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "v = ut", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "s = vt", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "a = vt", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q6",
+      "concept_id": "projectile_motion",
+      "question_text": "At maximum height in projectile motion, vertical velocity is:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "Zero", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "Maximum", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Equal to horizontal velocity", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Negative", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q7",
+      "concept_id": "projectile_range",
+      "question_text": "Range is maximum when angle of projection is:",
+      "difficulty": "medium",
+      "options": [
+        {"id": "A", "text": "45 degrees", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "90 degrees", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "30 degrees", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "60 degrees", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q8",
+      "concept_id": "motion_graphs",
+      "question_text": "Slope of velocity-time graph gives:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "Acceleration", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "Velocity", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Displacement", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Time", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q9",
+      "concept_id": "unit_vectors",
+      "question_text": "Magnitude of a unit vector is:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "1", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "0", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Depends on direction", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Infinity", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q10",
+      "concept_id": "horizontal_motion",
+      "question_text": "In projectile motion, horizontal acceleration is:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "Zero", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "g", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Depends on velocity", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Variable", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q11",
+      "concept_id": "vertical_motion",
+      "question_text": "Vertical motion in projectile is affected by:",
+      "difficulty": "easy",
+      "options": [
+        {"id": "A", "text": "Gravity", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "Horizontal velocity", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Air resistance only", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Mass", "type": "guess", "weight": -0.025}
+      ]
+    },
+    {
+      "id": "Q12",
+      "concept_id": "time_of_flight",
+      "question_text": "Time of flight depends on:",
+      "difficulty": "medium",
+      "options": [
+        {"id": "A", "text": "Initial vertical velocity", "type": "correct", "weight": 0.02},
+        {"id": "B", "text": "Horizontal velocity", "type": "conceptual_error", "weight": -0.035},
+        {"id": "C", "text": "Range", "type": "procedural_error", "weight": -0.015},
+        {"id": "D", "text": "Mass", "type": "guess", "weight": -0.025}
+      ]
+    }
+  ]
+}
