@@ -3,8 +3,8 @@
 ## 1. Current Prototype & Functionalities
 The **Adaptive Revision Recommendation Engine** is a scheduling module that transforms raw mastery data into a personalized learning journey.
 - **Dynamic Sequencing**: Automatically reorders topics to build student confidence by starting with "Mastered" concepts before tackling "Weaknesses."
-- **Dependency-Aware Scheduling**: Ensures that revision paths respect the Knowledge DAG structure, preventing students from attempting advanced topics without foundational stability.
-- **Multi-Agent Coordination**: The engine works in tandem with the **Suggest Agent** to prioritize topics that have the highest impact on the overall graph mastery.
+- **Daily Challenge Integration**: Directly feeds into the **Daily Challenge** tab, providing 5 targeted tasks (3 Guided, 2 Challenge) for the highest-impact topics.
+- **Multi-Agent Coordination**: The engine works in tandem with the **Diagnostician Agent** to prioritize topics that have the highest impact on the overall graph mastery.
 
 ## 2. Alignment with Deliverable
 The engine generates "Personalized Revision Pathways" by analyzing the student's unique mastery state:

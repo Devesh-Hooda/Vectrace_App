@@ -640,6 +640,13 @@ if (q.error_type === "conceptual")
                         <Badge className="bg-purple-500">Agent 3</Badge>
                         <span className="text-[10px] font-mono">Content Creator {"->"} [Practice Tasks]</span>
                       </div>
+                      <div className="flex justify-center">
+                        <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
+                      </div>
+                      <div className="flex items-center gap-3 p-2 rounded bg-slate-100 border">
+                        <Badge className="bg-pink-500">Agent 4</Badge>
+                        <span className="text-[10px] font-mono">Motivator {"->"} [Engagement Message]</span>
+                      </div>
                     </div>
                   </div>
 
@@ -657,6 +664,10 @@ if (q.error_type === "conceptual")
                       <div className="p-2 rounded bg-muted/30 border border-dashed">
                         <p className="text-[10px] font-bold text-primary mb-1">Agent 3: ZPD Scaffolding</p>
                         <code className="text-[11px] font-mono">D = Mastery + 0.1</code>
+                      </div>
+                      <div className="p-2 rounded bg-muted/30 border border-dashed">
+                        <p className="text-[10px] font-bold text-primary mb-1">Agent 4: Mastery Velocity</p>
+                        <code className="text-[11px] font-mono">V = ΔM / Δt</code>
                       </div>
                     </div>
                   </div>
@@ -755,10 +766,12 @@ if (q.error_type === "conceptual")
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="current-quiz">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="current-quiz" className="text-[10px]">Current Quiz</TabsTrigger>
-                <TabsTrigger value="suggest-agent" className="text-[10px]">Suggest Agent</TabsTrigger>
-                <TabsTrigger value="action-agent" className="text-[10px]">Action Agent</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="current-quiz" className="text-[10px]">Quiz Data</TabsTrigger>
+                <TabsTrigger value="architect" className="text-[10px]">Architect</TabsTrigger>
+                <TabsTrigger value="diagnostician" className="text-[10px]">Diagnostician</TabsTrigger>
+                <TabsTrigger value="creator" className="text-[10px]">Creator</TabsTrigger>
+                <TabsTrigger value="motivator" className="text-[10px]">Motivator</TabsTrigger>
               </TabsList>
               <TabsContent value="current-quiz">
                 <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
@@ -767,16 +780,72 @@ if (q.error_type === "conceptual")
                   </pre>
                 </ScrollArea>
               </TabsContent>
-              <TabsContent value="suggest-agent">
+              <TabsContent value="architect">
                 <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
-                  <pre className="text-xs text-emerald-400 font-mono">
-                    {JSON.stringify(currentQuizPayload, null, 2)}
+                  <pre className="text-xs text-blue-400 font-mono">
+                    {JSON.stringify({
+                      agent: "Architect",
+                      objective: "Optimize learning path based on graph bottlenecks",
+                      input: {
+                        graph_state: Object.entries(dagData.graph_state).map(([id, s]) => ({
+                          topic: id,
+                          mastery: s.mastery,
+                          dependents: s.prerequisites.length
+                        })),
+                        constraints: ["Prerequisite-first", "Max 3 focus topics"]
+                      }
+                    }, null, 2)}
                   </pre>
                 </ScrollArea>
               </TabsContent>
-              <TabsContent value="action-agent">
-                <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2 flex items-center justify-center">
-                  <p className="text-muted-foreground text-xs italic">Payload blank for now.</p>
+              <TabsContent value="diagnostician">
+                <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
+                  <pre className="text-xs text-emerald-400 font-mono">
+                    {JSON.stringify({
+                      agent: "Diagnostician",
+                      objective: "Identify conceptual vs procedural friction",
+                      output_schema: {
+                        performance_summary: "1-sentence overview",
+                        structured_analysis: {
+                          conceptual_gaps: [{ topic: "...", insight: "..." }],
+                          procedural_friction: [{ topic: "...", insight: "..." }],
+                          actionable_steps: [{ step: "...", benefit: "..." }]
+                        }
+                      }
+                    }, null, 2)}
+                  </pre>
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent value="creator">
+                <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
+                  <pre className="text-xs text-purple-400 font-mono">
+                    {JSON.stringify({
+                      agent: "Content Creator",
+                      objective: "Generate ZPD-aligned practice tasks",
+                      input: {
+                        target_topic: "vector_addition",
+                        detected_gap: "Conceptual: 1D thinking in 2D space",
+                        mastery_level: 0.45,
+                        scaffolding_level: "High (Step-by-step)"
+                      }
+                    }, null, 2)}
+                  </pre>
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent value="motivator">
+                <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
+                  <pre className="text-xs text-pink-400 font-mono">
+                    {JSON.stringify({
+                      agent: "Motivator",
+                      objective: "Maintain engagement via protective framing",
+                      input: {
+                        mastery_velocity: "+0.05/week",
+                        confidence_score: "Medium-Low",
+                        recent_wins: ["Displacement mastery reached 0.8"],
+                        tone: "Encouraging, Growth-oriented"
+                      }
+                    }, null, 2)}
+                  </pre>
                 </ScrollArea>
               </TabsContent>
             </Tabs>

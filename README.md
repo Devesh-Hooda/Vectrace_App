@@ -17,10 +17,14 @@ VECTRACE is a sophisticated, multi-agent educational platform designed to provid
 - **Bayesian-lite Updates**: A rule-based system that updates mastery levels ($0.000$ to $1.000$) based on quiz performance and error types.
 - **Diagnostic Weighting**: Different penalties for conceptual vs. procedural errors to accurately reflect the student's mental model.
 
-### 4. Multi-Agent AI Architecture
-- **Suggest Agent**: Analyzes student telemetry to generate proactive and protective diagnostic reports.
-- **Action Agent**: (In Development) Generates specific practice tasks and interactive exercises based on the Suggest Agent's findings.
-- **Report Caching**: Optimized API usage with session-based caching to prevent redundant token consumption.
+### 4. Multi-Agent AI Architecture (MAS)
+- **Agent 1: The Architect**: Strategically optimizes the learning journey using Weighted Graph Traversal to resolve foundational bottlenecks.
+- **Agent 2: The Diagnostician**: Performs Signal Analysis on quiz telemetry to distinguish between conceptual gaps and procedural friction.
+- **Agent 3: The Content Creator**: Generates 5 personalized, scaffolded practice tasks (3 Guided, 2 Challenge) based on the student's Zone of Proximal Development (ZPD).
+- **Agent 4: The Motivator**: Tracks Mastery Velocity to provide protective framing and momentum-based engagement messages.
+- **Collaborative Flow**: A sequential handover protocol where agents pipe insights to each other to build a 360-degree diagnostic report.
+- **Daily Challenge System**: A dedicated practice environment hosting AI-generated curriculum for immediate remediation.
+- **Quota Resilience**: Built-in fallback mechanisms to provide high-quality offline insights during API quota exhaustion.
 
 ### 5. Admin Dashboard
 - **Real-time Telemetry**: Live view of student mastery, quiz history, and AI payloads.
@@ -49,6 +53,9 @@ For more detailed information, please refer to:
 - [Deliverable 1: Knowledge Graph](./deliverables/deliverable_1.md)
 - [Deliverable 2: Diagnostic Quiz](./deliverables/deliverable_2.md)
 - [Deliverable 3: Mastery Model](./deliverables/deliverable_3.md)
+- [Deliverable 4: Adaptive Engine](./deliverables/deliverable_4.md)
+- [Deliverable 5: Multi-Agent System](./deliverables/deliverable_5.md)
+- [MAS Architecture & Flow](./Agent_flow.md)
 - [System Details & Agent Personas](./details.md)
 
 ## 🛠️ Getting Started

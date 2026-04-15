@@ -22,7 +22,8 @@ import {
   TrendingUp,
   AlertCircle,
   ShieldAlert,
-  RefreshCw
+  RefreshCw,
+  ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,8 +41,9 @@ import { LearningPath } from "@/src/components/learning-path";
 import { ReadingMaterial } from "@/src/components/reading-material";
 import { QuizSection } from "@/src/components/quiz-section";
 import { AISuggestions } from "@/src/components/ai-suggestions";
+import { DailyChallenge } from "@/src/components/daily-challenge";
 import { AdminDashboard } from "@/src/components/admin-dashboard";
-import { ActionPlan } from "@/src/components/action-plan";
+import { Shop } from "@/src/components/shop";
 import { cn } from "@/lib/utils";
 import { generateLearningPath } from "@/src/services/geminiService";
 import userDagsData from "./data/user-dags.json";
@@ -49,7 +51,7 @@ import quizHistoryData from "./data/quiz-history.json";
 
 // Types
 type Page = "login" | "dashboard";
-type DashboardTab = "dashboard" | "reading" | "quiz" | "suggestions" | "admin" | "action-plan";
+type DashboardTab = "dashboard" | "reading" | "quiz" | "suggestions" | "daily-challenge" | "admin";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("login");
@@ -383,8 +385,9 @@ function DashboardPage({
   };
 
   useEffect(() => {
-    refreshAIData();
-  }, [userEmail, userDags]); // Refresh when user or DAG changes
+    // Automatic refresh disabled to save credits.
+    // refreshAIData(); 
+  }, [userEmail]); // Only refresh on user change if needed, or keep empty
 
   const focusTopics = (aiData as any)?.impact_analysis?.map((t: any) => ({
     title: t.topic.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
@@ -449,14 +452,14 @@ function DashboardPage({
           <SidebarItem 
             icon={<Sparkles className="w-4 h-4" />} 
             label="AI Suggestions" 
-            active={activeTab === "suggestions"}
+            active={activeTab === "suggestions"} 
             onClick={() => setActiveTab("suggestions")}
           />
           <SidebarItem 
-            icon={<ShieldAlert className="w-4 h-4" />} 
-            label="Action Plan" 
-            active={activeTab === "action-plan"}
-            onClick={() => setActiveTab("action-plan")}
+            icon={<ClipboardList className="w-4 h-4" />} 
+            label="Daily Challenge" 
+            active={activeTab === "daily-challenge"} 
+            onClick={() => setActiveTab("daily-challenge")}
           />
           <div className="pt-4 mt-4 border-t border-border/50">
             <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">System</p>
@@ -488,6 +491,7 @@ function DashboardPage({
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <Shop />
             <ThemeToggle />
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
@@ -542,13 +546,6 @@ function DashboardPage({
                           <p className="text-sm font-bold">12 Days</p>
                         </div>
                       </Card>
-                      <Card className="px-4 py-2 flex items-center gap-3 border-yellow-500/20 bg-yellow-500/5">
-                        <Trophy className="w-4 h-4 text-yellow-500" />
-                        <div>
-                          <p className="text-[10px] uppercase font-bold text-yellow-500/70 tracking-wider">Total XP</p>
-                          <p className="text-sm font-bold">2,450</p>
-                        </div>
-                      </Card>
                     </div>
                   </div>
 
@@ -590,10 +587,18 @@ function DashboardPage({
                                   ))}
                                 </div>
                                 {topic.reasoning && (
-                                  <div className="p-2 rounded-lg bg-primary/5 border border-primary/10">
+                                  <div className="p-2 rounded-lg bg-primary/5 border border-primary/10 space-y-2">
                                     <p className="text-[10px] text-muted-foreground leading-relaxed italic">
                                       <span className="font-bold text-primary not-italic">AI Strategy:</span> {topic.reasoning}
                                     </p>
+                                    <div className="pt-2 border-t border-primary/10">
+                                      <p className="text-[9px] font-bold text-primary uppercase tracking-wider mb-1">Personalized Task</p>
+                                      <p className="text-[10px] text-foreground leading-tight">
+                                        {topic.progress < 50 
+                                          ? `Review ${topic.subtopics[0]} fundamentals and solve 3 basic problems.` 
+                                          : `Complete a challenge problem involving ${topic.subtopics[1] || topic.title}.`}
+                                      </p>
+                                    </div>
                                   </div>
                                 )}
                               </CardContent>
@@ -662,14 +667,19 @@ function DashboardPage({
                     }}
                   />
                 </motion.div>
-              ) : activeTab === "action-plan" ? (
+              ) : activeTab === "daily-challenge" ? (
                 <motion.div
-                  key="action-plan-content"
+                  key="daily-challenge-content"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <ActionPlan userEmail={userEmail} userDags={userDags} quizHistory={quizHistory} />
+                  <DailyChallenge 
+                    masState={(() => {
+                      const userData = (quizHistory as any)[userEmail]?.last_quiz || (quizHistory as any)["aarav.beginner@vectrace.ai"].last_quiz;
+                      return userData ? aiSuggestionsCache[userData.quiz_id] : null;
+                    })()}
+                  />
                 </motion.div>
               ) : (
                 <motion.div

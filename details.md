@@ -40,30 +40,32 @@ Mastery is updated using a weighted delta:
 - **Incorrect Answer**: Negative delta, weighted by the `error_type`. Conceptual errors result in a larger mastery drop than procedural ones.
 
 ## 5. Multi-Agent System (MAS) Architecture
-The system is evolving into a collaborative **Multi-Agent System (MAS)** where specialized agents work in sequence to provide a 360-degree learning experience.
+The system utilizes a collaborative **Multi-Agent System (MAS)** where specialized agents work in sequence to provide a 360-degree learning experience.
 
 ### A. Agent Handover Protocol
 1. **Agent 1: The Architect (Revision & Pathing)**
    - **Role**: Strategic planner.
    - **Input**: Full Knowledge DAG state.
    - **Output**: Optimized Revision Pathway (Sequence of topics).
-   - **Logic**: Prioritizes "Mastered" topics for confidence, followed by "Root Bottlenecks."
+   - **Mathematics**: Weighted Graph Traversal ($f(n) = (1-M) \cdot \text{Descendants}$).
 
 2. **Agent 2: The Diagnostician (Suggest Agent)**
    - **Role**: Tactical analyst.
    - **Input**: Latest Quiz Payload.
    - **Output**: Diagnostic Report (Conceptual vs. Procedural gaps).
-   - **Logic**: Explains *why* the student failed specific questions in the current session.
+   - **Mathematics**: Signal-to-Noise Analysis ($S = \Sigma(w \cdot E) / \Sigma w$).
 
 3. **Agent 3: The Content Creator (Action Agent)**
    - **Role**: Practical execution.
    - **Input**: Output from Agent 1 (Target Topic) + Output from Agent 2 (Error Pattern).
-   - **Output**: Personalized Practice Tasks (Specific physics problems or sketches).
+   - **Output**: Personalized Practice Tasks (Scaffolded exercises).
+   - **Mathematics**: Zone of Proximal Development ($D = Mastery + 0.1$).
 
 4. **Agent 4: The Motivator (Engagement Agent)**
    - **Role**: Psychological support.
    - **Input**: Mastery trends + Diagnostic Report.
-   - **Output**: Protective Feedback and confidence-boosting milestones.
+   - **Output**: Protective Feedback and momentum-based engagement messages.
+   - **Mathematics**: Mastery Velocity ($V = \Delta M / \Delta t$).
 
 ## 6. Enhanced Telemetry Payloads
 To power the MAS, the system utilizes advanced telemetry derived from student interactions:

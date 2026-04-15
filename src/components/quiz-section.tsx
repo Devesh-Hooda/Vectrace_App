@@ -214,14 +214,6 @@ export function QuizSection({
             </div>
           </CardContent>
           <CardFooter className="flex gap-4 p-8 bg-muted/20">
-            <Button variant="outline" className="flex-1 gap-2" onClick={() => {
-              setQuizStarted(false);
-              setQuizCompleted(false);
-              setHasAcceptedTerms(false);
-            }}>
-              <RotateCcw className="w-4 h-4" />
-              Retake Quiz
-            </Button>
             <Button className="flex-1 gap-2" onClick={onViewInsights}>
               View AI Insights
               <ArrowRight className="w-4 h-4" />
@@ -346,7 +338,7 @@ export function QuizSection({
                   <Target className="w-5 h-5 text-primary mt-0.5" />
                   <div>
                     <p className="text-sm font-bold">Passing Score</p>
-                    <p className="text-xs text-muted-foreground">Minimum 70% to earn XP.</p>
+                    <p className="text-xs text-muted-foreground">Minimum 70% to pass.</p>
                   </div>
                 </div>
               </div>
@@ -438,7 +430,7 @@ export function QuizSection({
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Complete this quiz with a score above 90% to unlock the <strong>"Kinematics Expert"</strong> badge and earn 500 bonus XP.
+                Complete this quiz with a score above 90% to unlock the <strong>"Kinematics Expert"</strong> badge.
               </p>
             </CardContent>
           </Card>

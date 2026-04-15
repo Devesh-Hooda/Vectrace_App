@@ -75,11 +75,21 @@ export async function generateAISuggestions(quizPayload: any) {
     
     OUTPUT FORMAT (JSON ONLY):
     {
-      "agent_id": "diagnostician_v2",
-      "performance_summary": "...",
-      "error_patterns": [{ "topic": "...", "analysis": "..." }],
+      "agent_id": "diagnostician_v3",
+      "performance_summary": "A 1-sentence high-level summary.",
+      "structured_analysis": {
+        "conceptual_gaps": [
+          { "topic": "...", "insight": "Brief technical explanation of the mental model gap." }
+        ],
+        "procedural_friction": [
+          { "topic": "...", "insight": "Brief technical explanation of the calculation/step error." }
+        ],
+        "actionable_steps": [
+          { "step": "...", "benefit": "Why this helps." }
+        ]
+      },
       "immediate_priority": { "topic": "...", "reason": "..." },
-      "confidence_score": { "rating": "...", "explanation": "..." }
+      "confidence_score": { "rating": "High|Medium|Low", "explanation": "..." }
     }
   `;
 
@@ -107,9 +117,9 @@ export async function generateActionTasks(targetTopic: string, errorSignal: stri
     - Current Mastery: ${mastery}
     
     TASK:
-    1. Generate 2 personalized practice tasks.
-    2. Task 1: A "Guided Example" with the solution hidden/explained.
-    3. Task 2: A "Challenge Problem" slightly above current mastery.
+    1. Generate 5 personalized practice tasks.
+    2. Tasks 1-3: "Guided Examples" with the solution hidden/explained.
+    3. Tasks 4-5: "Challenge Problems" slightly above current mastery.
     
     SAFETY GUARDRAILS:
     - Ensure all physics constants (g = 9.8 m/s²) are accurate.
@@ -117,9 +127,9 @@ export async function generateActionTasks(targetTopic: string, errorSignal: stri
     
     OUTPUT FORMAT (JSON ONLY):
     {
-      "agent_id": "creator_v2",
+      "agent_id": "creator_v3",
       "tasks": [
-        { "type": "guided|challenge", "content": "Markdown text...", "hint": "..." }
+        { "type": "guided|challenge", "title": "Brief Title", "content": "Markdown text...", "hint": "..." }
       ]
     }
   `;
@@ -187,7 +197,11 @@ async function executeAgentTask(agentName: string, prompt: string, model: any) {
     console.log(`[MAS LOG] Payload:`, payload);
 
     return payload;
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message?.includes("429") || error?.message?.includes("RESOURCE_EXHAUSTED")) {
+      console.error(`[MAS LOG] ${agentName} Agent: Quota Exhausted (429).`);
+      return { error: "QUOTA_EXHAUSTED", agent: agentName };
+    }
     console.error(`[MAS LOG] ${agentName} Agent failed:`, error);
     return null;
   }
