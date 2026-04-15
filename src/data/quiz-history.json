@@ -36,23 +36,5 @@
         }
       ]
     }
-  },
-  "meera.advanced@vectrace.ai": {
-    "last_quiz": {
-      "quiz_id": "qz_002",
-      "timestamp": "2026-04-12T21:45:00Z",
-      "questions": [
-        {
-          "question_id": "q1",
-          "text": "Find the angle between A = i + j and B = i - j.",
-          "answer_type": "multiple_choice",
-          "user_answer": "90°",
-          "correct_answer": "90°",
-          "error_type": "none",
-          "weightage": 0.0,
-          "topic": "vector_addition"
-        }
-      ]
-    }
   }
 }

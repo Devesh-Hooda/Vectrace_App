@@ -14,7 +14,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import quizHistory from "../data/quiz-history.json";
 import { cn } from "@/lib/utils";
 
 interface QuizQuestion {
@@ -34,7 +33,15 @@ interface QuizData {
   questions: QuizQuestion[];
 }
 
-export function ActionPlan({ userEmail }: { userEmail: string }) {
+export function ActionPlan({ 
+  userEmail,
+  userDags,
+  quizHistory
+}: { 
+  userEmail: string;
+  userDags: any;
+  quizHistory: any;
+}) {
   const typedQuizHistory = quizHistory as Record<string, { last_quiz: QuizData }>;
   const userData = typedQuizHistory[userEmail]?.last_quiz || typedQuizHistory["aarav.beginner@vectrace.ai"].last_quiz;
 

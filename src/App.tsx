@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Brain, 
@@ -21,7 +21,8 @@ import {
   ChevronRight,
   TrendingUp,
   AlertCircle,
-  ShieldAlert
+  ShieldAlert,
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +43,9 @@ import { AISuggestions } from "@/src/components/ai-suggestions";
 import { AdminDashboard } from "@/src/components/admin-dashboard";
 import { ActionPlan } from "@/src/components/action-plan";
 import { cn } from "@/lib/utils";
-import userDags from "./data/user-dags.json";
+import { generateLearningPath } from "@/src/services/geminiService";
+import userDagsData from "./data/user-dags.json";
+import quizHistoryData from "./data/quiz-history.json";
 
 // Types
 type Page = "login" | "dashboard";
@@ -52,14 +55,51 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("login");
   const [userEmail, setUserEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [userDags, setUserDags] = useState<any>(userDagsData);
+  const [quizHistory, setQuizHistory] = useState<any>(quizHistoryData);
+  const [aiSuggestionsCache, setAiSuggestionsCache] = useState<Record<string, any>>({});
+
+  const wipeAISuggestions = () => {
+    setAiSuggestionsCache({});
+  };
 
   const handleLogin = (email: string) => {
     setIsLoading(true);
     setUserEmail(email);
+    wipeAISuggestions(); // Wipe cache on login/entry
     setTimeout(() => {
       setIsLoading(false);
       setCurrentPage("dashboard");
     }, 1500);
+  };
+
+  const handleQuizComplete = (email: string, quizResults: any) => {
+    // Update Quiz History
+    const newQuizHistory = { ...quizHistory };
+    newQuizHistory[email] = { last_quiz: quizResults };
+    setQuizHistory(newQuizHistory);
+
+    // Update User DAG Mastery
+    const newUserDags = { ...userDags };
+    const userDag = newUserDags[email];
+    
+    if (userDag) {
+      quizResults.questions.forEach((q: any) => {
+        const topic = q.topic;
+        if (userDag.graph_state[topic]) {
+          const state = userDag.graph_state[topic];
+          state.attempts += 1;
+          
+          if (q.error_type === "conceptual") state.conceptual_error_count += 1;
+          if (q.error_type === "procedural") state.procedural_error_count += 1;
+          if (q.error_type === "guess") state.guess_count += 1;
+          
+          // Bayesian-like update
+          state.mastery = Number(Math.max(0, Math.min(1, state.mastery + q.weightage)).toFixed(3));
+        }
+      });
+    }
+    setUserDags(newUserDags);
   };
 
   return (
@@ -69,7 +109,16 @@ export default function App() {
           {currentPage === "login" ? (
             <LoginPage key="login" onLogin={handleLogin} isLoading={isLoading} />
           ) : (
-            <DashboardPage key="dashboard" userEmail={userEmail} onLogout={() => setCurrentPage("login")} />
+            <DashboardPage 
+              key="dashboard" 
+              userEmail={userEmail} 
+              userDags={userDags}
+              quizHistory={quizHistory}
+              aiSuggestionsCache={aiSuggestionsCache}
+              setAiSuggestionsCache={setAiSuggestionsCache}
+              onQuizComplete={handleQuizComplete}
+              onLogout={() => setCurrentPage("login")} 
+            />
           )}
         </AnimatePresence>
       </TooltipProvider>
@@ -82,7 +131,7 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const demoEmails = ["aarav.beginner@vectrace.ai", "meera.advanced@vectrace.ai"];
+  const demoEmails = ["aarav.beginner@vectrace.ai"];
 
   const fillDemo = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
@@ -202,12 +251,12 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="m@example.com"
-                    className={cn("pl-10 focus-visible:ring-primary", error && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("pl-10 py-6 focus-visible:ring-primary", error && "border-destructive focus-visible:ring-destructive")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -222,11 +271,11 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
                   </Button>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    className="pl-10 focus-visible:ring-primary"
+                    className="pl-10 py-6 focus-visible:ring-primary"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -273,21 +322,13 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
               Demo Credentials (Click to fill)
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4">
+          <CardContent className="grid grid-cols-1 gap-4 pb-6 px-6">
             <button 
               onClick={() => fillDemo("aarav.beginner@vectrace.ai", "1234")}
-              className="text-left p-3 rounded-xl bg-background/50 border hover:border-primary/50 transition-all group"
+              className="text-left p-4 rounded-xl bg-background/50 border hover:border-primary/50 transition-all group shadow-sm hover:shadow-md"
             >
-              <p className="text-xs font-bold text-primary mb-1">User 1 (Weak Performer)</p>
+              <p className="text-xs font-bold text-primary mb-1">User 1 (Beginner)</p>
               <p className="text-[10px] text-muted-foreground truncate">aarav.beginner@vectrace.ai</p>
-              <p className="text-[10px] text-muted-foreground">Pass: 1234</p>
-            </button>
-            <button 
-              onClick={() => fillDemo("meera.advanced@vectrace.ai", "1234")}
-              className="text-left p-3 rounded-xl bg-background/50 border hover:border-primary/50 transition-all group"
-            >
-              <p className="text-xs font-bold text-primary mb-1">User 2 (Strong Performer)</p>
-              <p className="text-[10px] text-muted-foreground truncate">meera.advanced@vectrace.ai</p>
               <p className="text-[10px] text-muted-foreground">Pass: 1234</p>
             </button>
           </CardContent>
@@ -297,16 +338,67 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
   );
 }
 
-function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: () => void; key?: string }) {
+function DashboardPage({ 
+  userEmail, 
+  userDags, 
+  quizHistory, 
+  aiSuggestionsCache,
+  setAiSuggestionsCache,
+  onQuizComplete, 
+  onLogout 
+}: { 
+  userEmail: string; 
+  userDags: any;
+  quizHistory: any;
+  aiSuggestionsCache: Record<string, any>;
+  setAiSuggestionsCache: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  onQuizComplete: (email: string, results: any) => void;
+  onLogout: () => void; 
+  key?: string 
+}) {
   const [activeTab, setActiveTab] = useState<DashboardTab>("dashboard");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [aiData, setAiData] = useState<{
+    focus_topics: any[];
+    learning_path: any[];
+  } | null>(null);
 
-  const focusTopics = [
-    { title: "Projectile Motion", progress: 65, icon: <Zap className="w-4 h-4 text-yellow-500" />, subtopics: ["Launch Angle", "Range", "Max Height"] },
-    { title: "Relative Velocity", progress: 40, icon: <TrendingUp className="w-4 h-4 text-blue-500" />, subtopics: ["Frame of Reference", "Vector Addition"] },
-    { title: "Uniform Acceleration", progress: 85, icon: <Target className="w-4 h-4 text-green-500" />, subtopics: ["Kinematic Equations", "Free Fall"] },
+  const typedUserDags = userDags as any;
+  const userData = typedUserDags[userEmail] || typedUserDags["aarav.beginner@vectrace.ai"];
+  const userName = userData.name;
+  const initials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+
+  const refreshAIData = async () => {
+    setIsRefreshing(true);
+    try {
+      const data = await generateLearningPath(userData);
+      if (data) {
+        setAiData(data);
+      }
+    } catch (error) {
+      console.error("Failed to refresh AI data:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshAIData();
+  }, [userEmail, userDags]); // Refresh when user or DAG changes
+
+  const focusTopics = aiData?.focus_topics.map(t => ({
+    title: t.title,
+    progress: Math.round(t.mastery * 100),
+    icon: t.mastery < 0.5 ? <Zap className="w-4 h-4 text-red-500" /> : <Target className="w-4 h-4 text-yellow-500" />,
+    subtopics: t.subtopics,
+    reasoning: t.reasoning
+  })) || [
+    { title: "Projectile Motion", progress: 65, icon: <Zap className="w-4 h-4 text-yellow-500" />, subtopics: ["Launch Angle", "Range", "Max Height"], reasoning: "Analyzing baseline..." },
+    { title: "Relative Velocity", progress: 40, icon: <TrendingUp className="w-4 h-4 text-blue-500" />, subtopics: ["Frame of Reference", "Vector Addition"], reasoning: "Analyzing baseline..." },
+    { title: "Uniform Acceleration", progress: 85, icon: <Target className="w-4 h-4 text-green-500" />, subtopics: ["Kinematic Equations", "Free Fall"], reasoning: "Analyzing baseline..." },
   ];
 
-  const learningPathSteps = Object.entries(userDags[userEmail as keyof typeof userDags]?.graph_state || userDags["aarav.beginner@vectrace.ai"].graph_state)
+  const learningPathSteps = aiData?.learning_path || Object.entries(userDags[userEmail]?.graph_state || userDags["aarav.beginner@vectrace.ai"].graph_state)
     .map(([id, state], index) => ({
       id,
       title: id.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
@@ -314,9 +406,8 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
       status: (state as any).mastery > 0.8 ? "completed" as const : (state as any).mastery > 0.4 ? "current" as const : "locked" as const
     }))
     .sort((a, b) => {
-      // Simple sort by prerequisites count to simulate hierarchy
-      const stateA = (userDags[userEmail as keyof typeof userDags]?.graph_state as any)[a.id];
-      const stateB = (userDags[userEmail as keyof typeof userDags]?.graph_state as any)[b.id];
+      const stateA = (userDags[userEmail]?.graph_state as any)[a.id];
+      const stateB = (userDags[userEmail]?.graph_state as any)[b.id];
       return (stateA?.prerequisites?.length || 0) - (stateB?.prerequisites?.length || 0);
     });
 
@@ -403,13 +494,13 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
               <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background" />
             </Button>
             <Separator orientation="vertical" className="h-6" />
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 pl-4 pr-2 py-1 rounded-full bg-muted/30 border border-border/50">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold">Gaurav Hooda</p>
-                <p className="text-xs text-muted-foreground">Physics Enthusiast</p>
+                <p className="text-sm font-semibold">{userName}</p>
+                <p className="text-[10px] text-muted-foreground">Physics Enthusiast</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">
-                GH
+              <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary shadow-sm">
+                {initials}
               </div>
             </div>
           </div>
@@ -434,6 +525,16 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
                       <p className="text-muted-foreground mt-1">Welcome back, {userEmail.split('@')[0]}! You're making great progress in Physics.</p>
                     </div>
                     <div className="flex items-center gap-3">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 h-10 border-primary/20 hover:bg-primary/5"
+                        onClick={refreshAIData}
+                        disabled={isRefreshing}
+                      >
+                        <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                        AI Refresh
+                      </Button>
                       <Card className="px-4 py-2 flex items-center gap-3 border-primary/20 bg-primary/5">
                         <Clock className="w-4 h-4 text-primary" />
                         <div>
@@ -481,13 +582,20 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
                                   <Badge variant="secondary" className="text-[10px]">{topic.progress}%</Badge>
                                 </div>
                                 <Progress value={topic.progress} className="h-1.5 mb-3" />
-                                <div className="flex flex-wrap gap-1">
+                                <div className="flex flex-wrap gap-1 mb-3">
                                   {topic.subtopics.map(sub => (
                                     <Badge key={sub} variant="outline" className="text-[9px] font-normal py-0 px-1.5 bg-muted/30">
                                       {sub}
                                     </Badge>
                                   ))}
                                 </div>
+                                {topic.reasoning && (
+                                  <div className="p-2 rounded-lg bg-primary/5 border border-primary/10">
+                                    <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+                                      <span className="font-bold text-primary not-italic">AI Strategy:</span> {topic.reasoning}
+                                    </p>
+                                  </div>
+                                )}
                               </CardContent>
                             </Card>
                           </motion.div>
@@ -531,7 +639,10 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <QuizSection onViewInsights={() => setActiveTab("suggestions")} />
+                  <QuizSection 
+                    onViewInsights={() => setActiveTab("suggestions")} 
+                    onQuizComplete={(results) => onQuizComplete(userEmail, results)}
+                  />
                 </motion.div>
               ) : activeTab === "suggestions" ? (
                 <motion.div
@@ -540,7 +651,16 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <AISuggestions userEmail={userEmail} />
+                  <AISuggestions 
+                    userEmail={userEmail} 
+                    userDags={userDags} 
+                    quizHistory={quizHistory} 
+                    cache={aiSuggestionsCache}
+                    onCacheUpdate={(report) => {
+                      const userData = (quizHistory as any)[userEmail]?.last_quiz || (quizHistory as any)["aarav.beginner@vectrace.ai"].last_quiz;
+                      setAiSuggestionsCache(prev => ({ ...prev, [userData.quiz_id]: report }));
+                    }}
+                  />
                 </motion.div>
               ) : activeTab === "action-plan" ? (
                 <motion.div
@@ -549,7 +669,7 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <ActionPlan userEmail={userEmail} />
+                  <ActionPlan userEmail={userEmail} userDags={userDags} quizHistory={quizHistory} />
                 </motion.div>
               ) : (
                 <motion.div
@@ -558,7 +678,11 @@ function DashboardPage({ userEmail, onLogout }: { userEmail: string; onLogout: (
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <AdminDashboard userEmail={userEmail} />
+                  <AdminDashboard 
+                    userEmail={userEmail} 
+                    userDags={userDags} 
+                    quizHistory={quizHistory} 
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

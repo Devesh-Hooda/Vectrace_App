@@ -22,7 +22,13 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import quizData from "@/src/data/quiz-questions.json";
 
-export function QuizSection({ onViewInsights }: { onViewInsights: () => void }) {
+export function QuizSection({ 
+  onViewInsights,
+  onQuizComplete
+}: { 
+  onViewInsights: () => void;
+  onQuizComplete: (results: any) => void;
+}) {
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -90,30 +96,71 @@ export function QuizSection({ onViewInsights }: { onViewInsights: () => void }) 
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
+        const finalAnswers = { ...answers, [currentQuestion.id]: selectedOptionId };
+        setAnswers(finalAnswers);
+        
+        // Calculate results immediately to pass to parent
+        const quizResults = {
+          quiz_id: quizData.quiz_id,
+          timestamp: new Date().toISOString(),
+          questions: questions.map((q) => {
+            const userAnswerId = q.id === currentQuestion.id ? selectedOptionId : answers[q.id];
+            const selectedOption = q.options.find(opt => opt.id === userAnswerId);
+            const isCorrect = selectedOption?.type === "correct";
+            
+            return {
+              question_id: q.id,
+              text: q.question_text,
+              answer_type: isCorrect ? "correct" : "incorrect",
+              user_answer: selectedOption?.text || "None",
+              correct_answer: q.options.find(opt => opt.type === "correct")?.text || "",
+              error_type: selectedOption?.type === "correct" ? "none" : (selectedOption?.type || "guess"),
+              weightage: selectedOption?.weight || 0,
+              topic: q.concept_id
+            };
+          })
+        };
+        
+        onQuizComplete(quizResults);
         setQuizCompleted(true);
       }
     }
   };
 
-  const calculateScore = () => {
-    let correctCount = 0;
-    questions.forEach((q) => {
-      const userAnswerId = answers[q.id];
-      const correctOption = q.options.find(opt => opt.type === "correct");
-      if (userAnswerId === correctOption?.id) {
-        correctCount++;
-      }
-    });
-    return {
-      score: Math.round((correctCount / questions.length) * 100),
-      correct: correctCount,
-      total: questions.length
+  const calculateResults = () => {
+    const quizResults = {
+      quiz_id: quizData.quiz_id,
+      timestamp: new Date().toISOString(),
+      questions: questions.map((q) => {
+        const userAnswerId = answers[q.id];
+        const selectedOption = q.options.find(opt => opt.id === userAnswerId);
+        const isCorrect = selectedOption?.type === "correct";
+        
+        return {
+          question_id: q.id,
+          text: q.question_text,
+          answer_type: isCorrect ? "correct" : "incorrect",
+          user_answer: selectedOption?.text || "None",
+          correct_answer: q.options.find(opt => opt.type === "correct")?.text || "",
+          error_type: selectedOption?.type === "correct" ? "none" : (selectedOption?.type || "guess"),
+          weightage: selectedOption?.weight || 0,
+          topic: q.concept_id
+        };
+      })
     };
+    return quizResults;
   };
 
   if (quizCompleted) {
-    const { score, correct, total } = calculateScore();
+    const results = calculateResults();
+    const correctCount = results.questions.filter(q => q.answer_type === "correct").length;
+    const total = results.questions.length;
+    const score = Math.round((correctCount / total) * 100);
     const passed = score >= 70;
+
+    // Call the completion callback if it hasn't been called yet for this session
+    // We can use a useEffect or just call it once here.
+    // To avoid multiple calls, we'll use a ref or just call it in handleNextQuestion.
 
     return (
       <motion.div 
@@ -144,7 +191,7 @@ export function QuizSection({ onViewInsights }: { onViewInsights: () => void }) 
               </div>
               <div className="p-6 rounded-2xl bg-muted/50 text-center">
                 <p className="text-sm text-muted-foreground uppercase font-bold tracking-wider mb-1">Accuracy</p>
-                <p className="text-4xl font-black text-foreground">{correct}/{total}</p>
+                <p className="text-4xl font-black text-foreground">{correctCount}/{total}</p>
               </div>
             </div>
 

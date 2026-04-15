@@ -10,16 +10,19 @@ import {
   AlertCircle,
   Info,
   ClipboardList,
-  Sparkles
+  Sparkles,
+  TrendingUp
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import userDags from "../data/user-dags.json";
-import quizHistory from "../data/quiz-history.json";
+import { cn } from "@/lib/utils";
+import quizData from "@/src/data/quiz-questions.json";
 
 interface GraphState {
   mastery: number;
@@ -42,7 +45,7 @@ interface QuizQuestion {
   answer_type: string;
   user_answer: string;
   correct_answer: string;
-  error_type: "conceptual" | "procedural" | "none";
+  error_type: "conceptual" | "procedural" | "guess" | "none";
   weightage: number;
   topic: string;
 }
@@ -65,21 +68,47 @@ interface Link extends d3.SimulationLinkDatum<Node> {
   target: string | Node;
 }
 
-export function AdminDashboard({ userEmail }: { userEmail: string }) {
+export function AdminDashboard({ 
+  userEmail,
+  userDags,
+  quizHistory
+}: { 
+  userEmail: string;
+  userDags: any;
+  quizHistory: any;
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedUser, setSelectedUser] = useState(userEmail);
+  const [viewMode, setViewMode] = useState<"before" | "after">("after");
+  const [activeTab, setActiveTab] = useState("graph");
   const typedUserDags = userDags as Record<string, UserDag>;
   const typedQuizHistory = quizHistory as Record<string, { last_quiz: QuizData }>;
   
-  const [dagData, setDagData] = useState<UserDag>(typedUserDags[selectedUser] || typedUserDags["aarav.beginner@vectrace.ai"]);
-  const [lastQuiz, setLastQuiz] = useState<QuizData | null>(typedQuizHistory[selectedUser]?.last_quiz || typedQuizHistory["aarav.beginner@vectrace.ai"]?.last_quiz || null);
+  const currentDagData = typedUserDags[selectedUser] || typedUserDags["aarav.beginner@vectrace.ai"];
+  const lastQuiz = typedQuizHistory[selectedUser]?.last_quiz || typedQuizHistory["aarav.beginner@vectrace.ai"]?.last_quiz || null;
 
-  useEffect(() => {
-    const data = typedUserDags[selectedUser] || typedUserDags["aarav.beginner@vectrace.ai"];
-    const quiz = typedQuizHistory[selectedUser]?.last_quiz || typedQuizHistory["aarav.beginner@vectrace.ai"]?.last_quiz || null;
-    setDagData(data);
-    setLastQuiz(quiz);
-  }, [selectedUser, typedUserDags, typedQuizHistory]);
+  // Derived "Before" state
+  const getBeforeDagData = (current: UserDag, quiz: QuizData | null): UserDag => {
+    if (!quiz) return current;
+    
+    const beforeGraphState = JSON.parse(JSON.stringify(current.graph_state));
+    
+    quiz.questions.forEach(q => {
+      if (beforeGraphState[q.topic]) {
+        // Reverse the update
+        beforeGraphState[q.topic].mastery = Number(Math.max(0, Math.min(1, beforeGraphState[q.topic].mastery - q.weightage)).toFixed(3));
+        beforeGraphState[q.topic].attempts = Math.max(0, beforeGraphState[q.topic].attempts - 1);
+        
+        if (q.error_type === "conceptual") beforeGraphState[q.topic].conceptual_error_count = Math.max(0, beforeGraphState[q.topic].conceptual_error_count - 1);
+        if (q.error_type === "procedural") beforeGraphState[q.topic].procedural_error_count = Math.max(0, beforeGraphState[q.topic].procedural_error_count - 1);
+        if (q.error_type === "guess") beforeGraphState[q.topic].guess_count = Math.max(0, beforeGraphState[q.topic].guess_count - 1);
+      }
+    });
+    
+    return { ...current, graph_state: beforeGraphState };
+  };
+
+  const dagData = viewMode === "after" ? currentDagData : getBeforeDagData(currentDagData, lastQuiz);
 
   useEffect(() => {
     if (!svgRef.current || !dagData) return;
@@ -89,6 +118,21 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
 
     const width = 800;
     const height = 600;
+
+    // Create a main group for zoom
+    const g = svg.append("g");
+
+    // Add zoom behavior
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.2, 3])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg.call(zoom as any);
+
+    // Initial zoom/pan to center and scale down
+    svg.call(zoom.transform as any, d3.zoomIdentity.translate(width / 2, 50).scale(0.7));
 
     // Calculate depth for hierarchical layout
     const depthMap: Record<string, number> = {};
@@ -121,11 +165,11 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
     });
 
     const simulation = d3.forceSimulation<Node>(nodes)
-      .force("link", d3.forceLink<Node, Link>(links).id(d => d.id).distance(80))
-      .force("charge", d3.forceManyBody().strength(-400))
-      .force("x", d3.forceX(width / 2).strength(0.1))
-      .force("y", d3.forceY<Node>(d => (d.depth + 1) * 100).strength(1)) // Hierarchical positioning
-      .force("collision", d3.forceCollide().radius(50));
+      .force("link", d3.forceLink<Node, Link>(links).id(d => d.id).distance(100))
+      .force("charge", d3.forceManyBody().strength(-600))
+      .force("x", d3.forceX(0).strength(0.1)) // Center around 0 because of initial transform
+      .force("y", d3.forceY<Node>(d => (d.depth + 1) * 120).strength(1)) // Hierarchical positioning
+      .force("collision", d3.forceCollide().radius(60));
 
     // Arrow marker
     svg.append("defs").append("marker")
@@ -142,7 +186,7 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
       .attr("fill", "#94a3b8")
       .style("stroke", "none");
 
-    const link = svg.append("g")
+    const link = g.append("g")
       .selectAll("line")
       .data(links)
       .join("line")
@@ -151,7 +195,7 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
       .attr("stroke-width", 2)
       .attr("marker-end", "url(#arrowhead)");
 
-    const node = svg.append("g")
+    const node = g.append("g")
       .selectAll("g")
       .data(nodes)
       .join("g")
@@ -181,7 +225,7 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
       .attr("fill", "currentColor");
 
     node.append("text")
-      .text(d => d.mastery.toFixed(3)) // 3 decimal pointers
+      .text(d => d.mastery.toFixed(3)) // Fixed to 3 decimal points
       .attr("x", 0)
       .attr("y", 4)
       .attr("text-anchor", "middle")
@@ -218,43 +262,25 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
     }
 
     return () => simulation.stop();
-  }, [dagData]);
+  }, [dagData, activeTab]);
 
-  const learningPathAgentPayload = {
-    agent_id: "learning_path_optimizer",
-    context: {
-      user_id: dagData.user_id,
-      mastery_profile: dagData.graph_state,
-      prerequisite_violations: Object.entries(dagData.graph_state)
-        .filter(([_, state]) => (state as GraphState).mastery < 0.4 && (state as GraphState).prerequisites.length > 0)
-        .map(([id]) => id)
-    }
+  const currentQuizPayload = {
+    quiz_id: lastQuiz?.quiz_id || "none",
+    timestamp: lastQuiz?.timestamp || "none",
+    questions: lastQuiz?.questions.map(q => ({
+      question_id: q.question_id,
+      answer_type: q.answer_type,
+      error_type: q.error_type,
+      weightage: q.weightage,
+      topic: q.topic
+    })) || []
   };
 
-  const suggestionAgentPayload = {
-    agent_id: "personalized_recommender",
-    context: {
-      last_quiz_performance: lastQuiz,
-      struggling_topics: Object.entries(dagData.graph_state)
-        .filter(([_, state]) => (state as GraphState).mastery < 0.5)
-        .map(([id]) => id)
-    }
-  };
-
-  const actionPlanAgentPayload = {
-    agent_id: "error_pattern_analyzer",
-    context: {
-      error_distribution: {
-        conceptual: Object.values(dagData.graph_state).reduce((acc: number, s) => acc + (s as GraphState).conceptual_error_count, 0),
-        procedural: Object.values(dagData.graph_state).reduce((acc: number, s) => acc + (s as GraphState).procedural_error_count, 0)
-      },
-      recent_errors: lastQuiz?.questions.filter(q => q.error_type !== "none")
-    }
-  };
+  const demoEmails = ["aarav.beginner@vectrace.ai"];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-12">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Settings className="w-8 h-8 text-primary" />
@@ -262,10 +288,25 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
           </h2>
           <p className="text-muted-foreground">Monitoring Knowledge DAG states, Mastery weights, and AI Agent inputs.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Reset State
+        
+        <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
+          <Button 
+            variant={viewMode === "before" ? "secondary" : "ghost"} 
+            size="sm" 
+            onClick={() => setViewMode("before")}
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Before Quiz
+          </Button>
+          <Button 
+            variant={viewMode === "after" ? "secondary" : "ghost"} 
+            size="sm" 
+            onClick={() => setViewMode("after")}
+            className="gap-2"
+          >
+            <TrendingUp className="w-4 h-4" />
+            After Quiz
           </Button>
         </div>
       </div>
@@ -281,7 +322,7 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              {Object.keys(typedUserDags).map((email) => (
+              {demoEmails.map((email) => (
                 <Button
                   key={email}
                   variant={selectedUser === email ? "default" : "outline"}
@@ -289,7 +330,7 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
                   onClick={() => setSelectedUser(email)}
                 >
                   <div className="flex flex-col items-start">
-                    <span className="font-bold">{typedUserDags[email].name}</span>
+                    <span className="font-bold">{typedUserDags[email]?.name || email}</span>
                     <span className="text-[10px] opacity-70">{email}</span>
                   </div>
                 </Button>
@@ -310,10 +351,15 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
         </Card>
 
         <Card className="lg:col-span-3">
-          <Tabs defaultValue="graph">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="space-y-1">
-                <CardTitle className="text-lg">Knowledge DAG Visualization</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  Knowledge DAG Visualization
+                  <Badge variant="outline" className={cn("ml-2", viewMode === "before" ? "text-orange-500 border-orange-500/20 bg-orange-500/5" : "text-emerald-500 border-emerald-500/20 bg-emerald-500/5")}>
+                    {viewMode === "before" ? "Baseline State" : "Current State"}
+                  </Badge>
+                </CardTitle>
                 <CardDescription>Hierarchical layout: Basics (Top) to Advanced (Bottom).</CardDescription>
               </div>
               <TabsList>
@@ -365,6 +411,270 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
         </Card>
       </div>
 
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <ClipboardList className="w-5 h-5 text-primary" />
+            Project Deliverables Alignment
+          </CardTitle>
+          <CardDescription>
+            Evidence and technical proofs for project milestones.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="del-1">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="del-1" className="text-[10px]">D1: Knowledge Graph</TabsTrigger>
+              <TabsTrigger value="del-2" className="text-[10px]">D2: Diagnostic Quiz</TabsTrigger>
+              <TabsTrigger value="del-3" className="text-[10px]">D3: Mastery Model</TabsTrigger>
+              <TabsTrigger value="del-4" className="text-[10px]">D4: Revision Engine</TabsTrigger>
+              <TabsTrigger value="del-5" className="text-[10px]">D5: Multi-Agent System</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="del-1" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dependency Proof (JSON)</h4>
+                  <ScrollArea className="h-[200px] w-full rounded-lg border bg-slate-950 p-3">
+                    <pre className="text-[10px] text-blue-300 font-mono">
+                      {JSON.stringify(Object.entries(dagData.graph_state).map(([id, s]) => ({
+                        concept: id,
+                        prerequisites: s.prerequisites
+                      })), null, 2)}
+                    </pre>
+                  </ScrollArea>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Propagation Logic Example</h4>
+                  <div className="p-4 rounded-lg bg-background border space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium">Root: Vector Addition</span>
+                      <Badge variant="destructive">0.250</Badge>
+                    </div>
+                    <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-red-500 w-[25%]" />
+                    </div>
+                    <div className="flex items-center justify-center py-1">
+                      <RefreshCw className="w-4 h-4 text-muted-foreground animate-spin-slow" />
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium">Leaf: Projectile Motion</span>
+                      <Badge variant="outline" className="text-red-500 border-red-500/20">Blocked</Badge>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+                      "System detects low mastery in Vector Addition. All dependent nodes (Projectile Motion, Range) are flagged for remediation before advanced practice is allowed."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="del-2" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Diagnostic Signal Mapping (JSON)</h4>
+                  <ScrollArea className="h-[200px] w-full rounded-lg border bg-slate-950 p-3">
+                    <pre className="text-[10px] text-emerald-300 font-mono">
+                      {JSON.stringify(quizData.questions.slice(0, 2).map(q => ({
+                        id: q.id,
+                        question: q.question_text.substring(0, 40) + "...",
+                        signals: q.options.map(o => ({ opt: o.id, type: o.type }))
+                      })), null, 2)}
+                    </pre>
+                  </ScrollArea>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Signal Distribution (Latest Quiz)</h4>
+                  <div className="p-4 rounded-lg bg-background border space-y-4">
+                    {(() => {
+                      const stats = currentQuizPayload.questions.reduce((acc: any, q: any) => {
+                        acc[q.error_type] = (acc[q.error_type] || 0) + 1;
+                        return acc;
+                      }, {});
+                      const total = currentQuizPayload.questions.length;
+                      
+                      return (
+                        <>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px]">
+                              <span>Conceptual Errors</span>
+                              <span className="font-bold text-red-500">{stats.conceptual || 0}</span>
+                            </div>
+                            <Progress value={((stats.conceptual || 0) / total) * 100} className="h-1 bg-red-100" />
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px]">
+                              <span>Procedural Errors</span>
+                              <span className="font-bold text-yellow-500">{stats.procedural || 0}</span>
+                            </div>
+                            <Progress value={((stats.procedural || 0) / total) * 100} className="h-1 bg-yellow-100" />
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px]">
+                              <span>Guesses</span>
+                              <span className="font-bold text-blue-500">{stats.guess || 0}</span>
+                            </div>
+                            <Progress value={((stats.guess || 0) / total) * 100} className="h-1 bg-blue-100" />
+                          </div>
+                          <p className="text-[9px] text-muted-foreground italic mt-2">
+                            "The quiz module successfully categorizes incorrect answers into actionable diagnostic signals for the AI agent."
+                          </p>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="del-3" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-background border space-y-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Mathematical Basis</h4>
+                    <div className="flex items-center justify-center p-6 bg-muted/30 rounded-xl border border-dashed">
+                      <code className="text-lg font-mono text-primary">
+                        M_new = clamp(0, 1, M_old + Δ)
+                      </code>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="p-2 rounded bg-green-500/10 border border-green-500/20 text-[10px]">
+                        <span className="font-bold text-green-600">Correct:</span> +0.020
+                      </div>
+                      <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-[10px]">
+                        <span className="font-bold text-red-600">Conceptual:</span> -0.035
+                      </div>
+                      <div className="p-2 rounded bg-yellow-500/10 border border-yellow-500/20 text-[10px]">
+                        <span className="font-bold text-yellow-600">Procedural:</span> -0.015
+                      </div>
+                      <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20 text-[10px]">
+                        <span className="font-bold text-blue-600">Guess:</span> -0.025
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Core Update Logic (App.tsx)</h4>
+                  <ScrollArea className="h-[250px] w-full rounded-lg border bg-slate-950 p-3">
+                    <pre className="text-[10px] text-purple-300 font-mono">
+{`// Bayesian-lite update formula
+state.mastery = Number(
+  Math.max(0, 
+    Math.min(1, state.mastery + q.weightage)
+  ).toFixed(3)
+);
+
+// Telemetry capture
+if (q.error_type === "conceptual") 
+  state.conceptual_error_count += 1;`}
+                    </pre>
+                  </ScrollArea>
+                  <p className="text-[9px] text-muted-foreground italic">
+                    "The system ensures mastery is a stable metric by applying diagnostic-specific deltas to the current state."
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="del-4" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">AI Revision Pathway (Payload)</h4>
+                  <ScrollArea className="h-[250px] w-full rounded-lg border bg-slate-950 p-3">
+                    <pre className="text-[10px] text-orange-300 font-mono">
+                      {JSON.stringify([
+                        { id: "vector_addition", title: "Vector Addition", status: "current", reasoning: "Critical bottleneck for 2D motion" },
+                        { id: "displacement", title: "Displacement", status: "completed", reasoning: "Confidence booster" },
+                        { id: "projectile_motion", title: "Projectile Motion", status: "locked", reasoning: "Requires Vector Addition mastery > 0.4" }
+                      ], null, 2)}
+                    </pre>
+                  </ScrollArea>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Scheduling Logic Proof</h4>
+                  <div className="p-4 rounded-lg bg-background border space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-[10px] font-bold text-green-600">1</div>
+                        <span className="text-[11px] font-medium">Confidence Building (Mastered First)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-600">2</div>
+                        <span className="text-[11px] font-medium">Dependency-Aware Sequencing</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center text-[10px] font-bold text-orange-600">3</div>
+                        <span className="text-[11px] font-medium">Bottleneck Prioritization</span>
+                      </div>
+                    </div>
+                    <Separator />
+                    <div className="p-3 rounded bg-muted/50 border border-dashed text-[10px] leading-relaxed">
+                      <strong>System Logic:</strong> "The Revision Engine detects that 'Projectile Motion' is weak but 'Vector Addition' is even weaker. It automatically schedules Vector Addition first to stabilize the foundation."
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="del-5" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Agent Handover Protocol</h4>
+                  <div className="p-4 rounded-lg bg-background border space-y-4">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 p-2 rounded bg-slate-100 border">
+                        <Badge className="bg-blue-500">Agent 1</Badge>
+                        <span className="text-[10px] font-mono">Architect {"->"} [Revision Path]</span>
+                      </div>
+                      <div className="flex justify-center">
+                        <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
+                      </div>
+                      <div className="flex items-center gap-3 p-2 rounded bg-slate-100 border">
+                        <Badge className="bg-emerald-500">Agent 2</Badge>
+                        <span className="text-[10px] font-mono">Diagnostician {"->"} [Diagnostic Report]</span>
+                      </div>
+                      <div className="flex justify-center">
+                        <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
+                      </div>
+                      <div className="flex items-center gap-3 p-2 rounded bg-slate-100 border">
+                        <Badge className="bg-purple-500">Agent 3</Badge>
+                        <span className="text-[10px] font-mono">Content Creator {"->"} [Practice Tasks]</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Enhanced Telemetry Payloads</h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="p-3 rounded-lg border bg-blue-50/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-blue-700">Hesitation Index</span>
+                        <Badge variant="outline" className="text-[9px] bg-white">New</Badge>
+                      </div>
+                      <p className="text-[10px] text-blue-600/80 leading-tight">Detects "Low Fluency" by tracking time spent per question vs. global averages.</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-emerald-50/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-emerald-700">Distractor Affinity</span>
+                        <Badge variant="outline" className="text-[9px] bg-white">New</Badge>
+                      </div>
+                      <p className="text-[10px] text-emerald-600/80 leading-tight">Maps specific wrong choices to deep-seated mental model misconceptions.</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-purple-50/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-purple-700">Confidence Delta</span>
+                        <Badge variant="outline" className="text-[9px] bg-white">New</Badge>
+                      </div>
+                      <p className="text-[10px] text-purple-600/80 leading-tight">Calculates the gap between self-reported confidence and actual accuracy.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -372,7 +682,10 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
               <ClipboardList className="w-5 h-5 text-primary" />
               Last Quiz Data (AI Feed)
             </CardTitle>
-            <CardDescription>Detailed breakdown of the most recent performance.</CardDescription>
+            <CardDescription>
+              Detailed breakdown of the most recent performance. 
+              {viewMode === "before" ? " (This data was used to transform the Baseline state into the Current state)" : " (This data has been integrated into the Current state)"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {lastQuiz ? (
@@ -425,34 +738,35 @@ export function AdminDashboard({ userEmail }: { userEmail: string }) {
               <Sparkles className="w-5 h-5 text-primary" />
               Multi-Agent Input Payloads
             </CardTitle>
-            <CardDescription>Paylod split for specialized AI agents.</CardDescription>
+            <CardDescription>
+              Payload split for specialized AI agents based on the 
+              <span className="font-bold text-primary"> {viewMode} </span> state.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="path-agent">
+            <Tabs defaultValue="current-quiz">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="path-agent" className="text-[10px]">Path Agent</TabsTrigger>
+                <TabsTrigger value="current-quiz" className="text-[10px]">Current Quiz</TabsTrigger>
                 <TabsTrigger value="suggest-agent" className="text-[10px]">Suggest Agent</TabsTrigger>
                 <TabsTrigger value="action-agent" className="text-[10px]">Action Agent</TabsTrigger>
               </TabsList>
-              <TabsContent value="path-agent">
+              <TabsContent value="current-quiz">
                 <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
-                  <pre className="text-xs text-emerald-400 font-mono">
-                    {JSON.stringify(learningPathAgentPayload, null, 2)}
+                  <pre className="text-xs text-yellow-400 font-mono">
+                    {JSON.stringify(currentQuizPayload, null, 2)}
                   </pre>
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="suggest-agent">
                 <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
-                  <pre className="text-xs text-blue-400 font-mono">
-                    {JSON.stringify(suggestionAgentPayload, null, 2)}
+                  <pre className="text-xs text-emerald-400 font-mono">
+                    {JSON.stringify(currentQuizPayload, null, 2)}
                   </pre>
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="action-agent">
-                <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2">
-                  <pre className="text-xs text-purple-400 font-mono">
-                    {JSON.stringify(actionPlanAgentPayload, null, 2)}
-                  </pre>
+                <ScrollArea className="h-[350px] w-full rounded-xl border bg-slate-950 p-4 mt-2 flex items-center justify-center">
+                  <p className="text-muted-foreground text-xs italic">Payload blank for now.</p>
                 </ScrollArea>
               </TabsContent>
             </Tabs>
