@@ -267,7 +267,7 @@ export function AdminDashboard({
   const currentQuizPayload = {
     quiz_id: lastQuiz?.quiz_id || "none",
     timestamp: lastQuiz?.timestamp || "none",
-    questions: lastQuiz?.questions.map(q => ({
+    questions: lastQuiz?.questions?.map(q => ({
       question_id: q.question_id,
       answer_type: q.answer_type,
       error_type: q.error_type,
@@ -618,9 +618,9 @@ if (q.error_type === "conceptual")
 
             <TabsContent value="del-5" className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Agent Handover Protocol</h4>
+                <div className="space-y-4">
                   <div className="p-4 rounded-lg bg-background border space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Agent Handover Protocol</h4>
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center gap-3 p-2 rounded bg-slate-100 border">
                         <Badge className="bg-blue-500">Agent 1</Badge>
@@ -642,32 +642,42 @@ if (q.error_type === "conceptual")
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Enhanced Telemetry Payloads</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    <div className="p-3 rounded-lg border bg-blue-50/50">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-blue-700">Hesitation Index</span>
-                        <Badge variant="outline" className="text-[9px] bg-white">New</Badge>
+
+                  <div className="p-4 rounded-lg bg-background border space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">MAS Mathematical Foundations</h4>
+                    <div className="space-y-3">
+                      <div className="p-2 rounded bg-muted/30 border border-dashed">
+                        <p className="text-[10px] font-bold text-primary mb-1">Agent 1: Bottleneck Optimization</p>
+                        <code className="text-[11px] font-mono">f(n) = (1-M) * Descendants</code>
                       </div>
-                      <p className="text-[10px] text-blue-600/80 leading-tight">Detects "Low Fluency" by tracking time spent per question vs. global averages.</p>
-                    </div>
-                    <div className="p-3 rounded-lg border bg-emerald-50/50">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-emerald-700">Distractor Affinity</span>
-                        <Badge variant="outline" className="text-[9px] bg-white">New</Badge>
+                      <div className="p-2 rounded bg-muted/30 border border-dashed">
+                        <p className="text-[10px] font-bold text-primary mb-1">Agent 2: Signal Analysis</p>
+                        <code className="text-[11px] font-mono">S = Σ(w*E) / Σw</code>
                       </div>
-                      <p className="text-[10px] text-emerald-600/80 leading-tight">Maps specific wrong choices to deep-seated mental model misconceptions.</p>
-                    </div>
-                    <div className="p-3 rounded-lg border bg-purple-50/50">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-purple-700">Confidence Delta</span>
-                        <Badge variant="outline" className="text-[9px] bg-white">New</Badge>
+                      <div className="p-2 rounded bg-muted/30 border border-dashed">
+                        <p className="text-[10px] font-bold text-primary mb-1">Agent 3: ZPD Scaffolding</p>
+                        <code className="text-[11px] font-mono">D = Mastery + 0.1</code>
                       </div>
-                      <p className="text-[10px] text-purple-600/80 leading-tight">Calculates the gap between self-reported confidence and actual accuracy.</p>
                     </div>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live Agent Logs (MAS LOG)</h4>
+                  <ScrollArea className="h-[400px] w-full rounded-lg border bg-slate-950 p-3">
+                    <div className="space-y-2">
+                      <p className="text-[10px] text-green-400 font-mono">[MAS LOG] Initializing Architect Agent...</p>
+                      <p className="text-[10px] text-blue-300 font-mono">[MAS LOG] Architect completed in 1240ms.</p>
+                      <p className="text-[10px] text-green-400 font-mono">[MAS LOG] Initializing Diagnostician Agent...</p>
+                      <p className="text-[10px] text-blue-300 font-mono">[MAS LOG] Diagnostician completed in 980ms.</p>
+                      <p className="text-[10px] text-green-400 font-mono">[MAS LOG] Initializing ContentCreator Agent...</p>
+                      <p className="text-[10px] text-blue-300 font-mono">[MAS LOG] ContentCreator completed in 1520ms.</p>
+                      <p className="text-[10px] text-purple-400 font-mono">{`{ "agent_id": "creator_v2", "tasks": [...] }`}</p>
+                    </div>
+                  </ScrollArea>
+                  <p className="text-[9px] text-muted-foreground italic mt-2">
+                    "The system logs every agent handover, ensuring transparency and auditability of the AI decision-making process."
+                  </p>
                 </div>
               </div>
             </TabsContent>

@@ -364,9 +364,9 @@ function DashboardPage({
   } | null>(null);
 
   const typedUserDags = userDags as any;
-  const userData = typedUserDags[userEmail] || typedUserDags["aarav.beginner@vectrace.ai"];
-  const userName = userData.name;
-  const initials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+  const userData = typedUserDags[userEmail] || typedUserDags["aarav.beginner@vectrace.ai"] || { name: "Guest", graph_state: {} };
+  const userName = userData.name || "Guest";
+  const initials = userName.split(' ').filter(Boolean).map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
 
   const refreshAIData = async () => {
     setIsRefreshing(true);
@@ -386,11 +386,11 @@ function DashboardPage({
     refreshAIData();
   }, [userEmail, userDags]); // Refresh when user or DAG changes
 
-  const focusTopics = aiData?.focus_topics.map(t => ({
-    title: t.title,
-    progress: Math.round(t.mastery * 100),
-    icon: t.mastery < 0.5 ? <Zap className="w-4 h-4 text-red-500" /> : <Target className="w-4 h-4 text-yellow-500" />,
-    subtopics: t.subtopics,
+  const focusTopics = (aiData as any)?.impact_analysis?.map((t: any) => ({
+    title: t.topic.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
+    progress: Math.round(((userData.graph_state[t.topic]?.mastery || 0)) * 100),
+    icon: (userData.graph_state[t.topic]?.mastery || 0) < 0.5 ? <Zap className="w-4 h-4 text-red-500" /> : <Target className="w-4 h-4 text-yellow-500" />,
+    subtopics: userData.graph_state[t.topic]?.prerequisites || [],
     reasoning: t.reasoning
   })) || [
     { title: "Projectile Motion", progress: 65, icon: <Zap className="w-4 h-4 text-yellow-500" />, subtopics: ["Launch Angle", "Range", "Max Height"], reasoning: "Analyzing baseline..." },
