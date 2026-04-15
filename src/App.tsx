@@ -230,11 +230,11 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full hover:bg-primary/5 hover:text-primary transition-colors">
+              <Button variant="outline" className="w-full py-3 hover:bg-primary/5 hover:text-primary transition-colors h-auto">
                 <Chrome className="mr-2 h-4 w-4" />
                 Google
               </Button>
-              <Button variant="outline" className="w-full hover:bg-primary/5 hover:text-primary transition-colors">
+              <Button variant="outline" className="w-full py-3 hover:bg-primary/5 hover:text-primary transition-colors h-auto">
                 <Github className="mr-2 h-4 w-4" />
                 Github
               </Button>
@@ -258,7 +258,7 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
                     id="email"
                     type="email"
                     placeholder="m@example.com"
-                    className={cn("pl-10 py-6 focus-visible:ring-primary", error && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("pl-10 py-3 focus-visible:ring-primary h-auto", error && "border-destructive focus-visible:ring-destructive")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -277,7 +277,7 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
                   <Input
                     id="password"
                     type="password"
-                    className="pl-10 py-6 focus-visible:ring-primary"
+                    className="pl-10 py-3 focus-visible:ring-primary h-auto"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -293,7 +293,7 @@ function LoginPage({ onLogin, isLoading }: { onLogin: (email: string) => void; i
                   Remember me for 30 days
                 </label>
               </div>
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={isLoading}>
+              <Button type="submit" className="w-full py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-auto" disabled={isLoading}>
                 {isLoading ? (
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -532,7 +532,7 @@ function DashboardPage({
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="gap-2 h-10 border-primary/20 hover:bg-primary/5"
+                        className="gap-2 py-2 border-primary/20 hover:bg-primary/5 h-auto"
                         onClick={refreshAIData}
                         disabled={isRefreshing}
                       >

@@ -1,130 +1,57 @@
 {
   "aarav.beginner@vectrace.ai": {
     "last_quiz": {
-      "quiz_id": "qz_001",
-      "timestamp": "2026-04-12T22:30:00Z",
+      "quiz_id": "qz_002",
+      "timestamp": "2026-04-15T10:00:00Z",
       "questions": [
         {
-          "question_id": "q1",
-          "text": "A vector has a magnitude of 5 units and makes an angle of 30° with the x-axis. What is its y-component?",
-          "answer_type": "multiple_choice",
-          "user_answer": "4.33",
-          "correct_answer": "2.5",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "vector_addition"
-        },
-        {
-          "question_id": "q2",
-          "text": "Calculate the displacement of an object moving in a circle of radius R after half a revolution.",
-          "answer_type": "numeric",
-          "user_answer": "πR",
-          "correct_answer": "2R",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "displacement"
-        },
-        {
-          "question_id": "q3",
-          "text": "If v = 2t + 5, find the acceleration at t = 2s.",
-          "answer_type": "numeric",
-          "user_answer": "9",
-          "correct_answer": "2",
-          "error_type": "procedural",
-          "weightage": -0.015,
-          "topic": "acceleration"
-        },
-        {
-          "question_id": "q4",
-          "text": "A ball is thrown vertically upwards. At the highest point, what is its velocity?",
-          "answer_type": "multiple_choice",
-          "user_answer": "9.8 m/s",
-          "correct_answer": "0 m/s",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "velocity"
-        },
-        {
-          "question_id": "q5",
-          "text": "A car travels 100m East and then 100m West. What is the total distance traveled?",
-          "answer_type": "numeric",
-          "user_answer": "0",
-          "correct_answer": "200",
-          "error_type": "procedural",
-          "weightage": -0.015,
-          "topic": "displacement"
-        },
-        {
-          "question_id": "q6",
-          "text": "Which of the following is a scalar quantity?",
-          "answer_type": "multiple_choice",
-          "user_answer": "Velocity",
-          "correct_answer": "Speed",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "vectors"
-        },
-        {
-          "question_id": "q7",
-          "text": "A projectile is launched at 45°. At what point is the vertical component of velocity zero?",
-          "answer_type": "multiple_choice",
-          "user_answer": "At launch",
-          "correct_answer": "At maximum height",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "projectile_motion"
-        },
-        {
-          "question_id": "q8",
-          "text": "If an object moves at constant speed in a circle, is it accelerating?",
-          "answer_type": "multiple_choice",
-          "user_answer": "No",
-          "correct_answer": "Yes",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "acceleration"
-        },
-        {
-          "question_id": "q9",
-          "text": "Calculate the average speed of a runner who covers 400m in 50s.",
-          "answer_type": "numeric",
-          "user_answer": "8",
-          "correct_answer": "8",
-          "error_type": "none",
-          "weightage": 0.025,
-          "topic": "velocity"
-        },
-        {
-          "question_id": "q10",
-          "text": "Two vectors of magnitude 3 and 4 are added. What is the maximum possible magnitude of the resultant?",
+          "question_id": "q1_v2",
+          "text": "A vector has a magnitude of 10 units and makes an angle of 30° with the x-axis. What is its y-component?",
           "answer_type": "numeric",
           "user_answer": "5",
-          "correct_answer": "7",
-          "error_type": "conceptual",
-          "weightage": -0.035,
+          "correct_answer": "5",
+          "error_type": "none",
+          "weightage": 0.035,
           "topic": "vector_addition"
         },
         {
-          "question_id": "q11",
-          "text": "A stone is dropped from a cliff. How far does it fall in 1 second? (g=10m/s²)",
+          "question_id": "q2_v2",
+          "text": "An object moves 3m East and 4m North. What is the magnitude of its displacement?",
           "answer_type": "numeric",
-          "user_answer": "10",
+          "user_answer": "5",
           "correct_answer": "5",
-          "error_type": "procedural",
-          "weightage": -0.015,
+          "error_type": "none",
+          "weightage": 0.035,
+          "topic": "displacement"
+        },
+        {
+          "question_id": "q3_v2",
+          "text": "A car accelerates from rest to 20m/s in 4s. What is its acceleration?",
+          "answer_type": "numeric",
+          "user_answer": "5",
+          "correct_answer": "5",
+          "error_type": "none",
+          "weightage": 0.035,
           "topic": "acceleration"
         },
         {
-          "question_id": "q12",
-          "text": "What does the slope of a position-time graph represent?",
-          "answer_type": "multiple_choice",
-          "user_answer": "Acceleration",
-          "correct_answer": "Velocity",
-          "error_type": "conceptual",
-          "weightage": -0.035,
-          "topic": "velocity"
+          "question_id": "q4_v2",
+          "text": "What is the velocity of a projectile at its maximum height if launched at 10m/s horizontally?",
+          "answer_type": "numeric",
+          "user_answer": "10",
+          "correct_answer": "10",
+          "error_type": "none",
+          "weightage": 0.035,
+          "topic": "projectile_motion"
         }
       ]
-    }
+    },
+    "history": [
+      {
+        "quiz_id": "qz_001",
+        "timestamp": "2026-04-12T22:30:00Z",
+        "score": 0.08
+      }
+    ]
   }
 }

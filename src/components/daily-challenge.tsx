@@ -111,10 +111,10 @@ export function DailyChallenge({
                     {task.content}
                   </div>
                   <div className="flex gap-3">
-                    <Button variant="outline" size="sm" className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-100">
+                    <Button variant="outline" className="flex-1 px-6 py-3 border-orange-200 text-orange-700 hover:bg-orange-100 font-bold h-auto">
                       View Hint
                     </Button>
-                    <Button size="sm" className="flex-1 bg-orange-600 hover:bg-orange-700 text-white">
+                    <Button className="flex-1 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold shadow-lg shadow-orange-600/20 h-auto">
                       Submit Answer
                     </Button>
                   </div>

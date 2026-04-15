@@ -4,32 +4,32 @@
     "name": "Aarav (Beginner)",
     "graph_state": {
       "vector_addition": {
-        "mastery": 0.250,
-        "attempts": 2,
+        "mastery": 0.350,
+        "attempts": 4,
         "conceptual_error_count": 1,
         "procedural_error_count": 0,
         "guess_count": 1,
         "prerequisites": []
       },
       "unit_vectors": {
-        "mastery": 0.150,
-        "attempts": 1,
+        "mastery": 0.200,
+        "attempts": 2,
         "conceptual_error_count": 1,
         "procedural_error_count": 0,
         "guess_count": 0,
         "prerequisites": ["vector_addition"]
       },
       "displacement": {
-        "mastery": 0.300,
-        "attempts": 2,
+        "mastery": 0.400,
+        "attempts": 4,
         "conceptual_error_count": 1,
         "procedural_error_count": 0,
         "guess_count": 0,
         "prerequisites": ["vector_addition"]
       },
       "velocity": {
-        "mastery": 0.280,
-        "attempts": 2,
+        "mastery": 0.380,
+        "attempts": 4,
         "conceptual_error_count": 1,
         "procedural_error_count": 1,
         "guess_count": 0,

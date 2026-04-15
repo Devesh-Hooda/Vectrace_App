@@ -291,7 +291,7 @@ export function QuizSection({
             <Button 
               onClick={handleNextQuestion} 
               disabled={!selectedOptionId}
-              className="px-8 font-bold gap-2"
+              className="px-8 py-3 font-bold gap-2 h-auto"
             >
               {currentQuestionIndex === questions.length - 1 ? "Finish Quiz" : "Next Question"}
               <ChevronRight className="w-4 h-4" />
@@ -388,12 +388,12 @@ export function QuizSection({
                 </label>
               </div>
               <Button 
-                className="w-full sm:w-auto px-8 font-bold gap-2" 
+                className="w-full sm:w-auto px-12 py-5 text-xl font-black uppercase tracking-widest gap-4 shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground h-auto" 
                 disabled={!hasAcceptedTerms}
                 onClick={handleStartQuiz}
               >
-                <Play className="w-4 h-4 fill-current" />
-                Start Quiz
+                <Play className="w-7 h-7 fill-current" />
+                Start Diagnostic Quiz
               </Button>
             </CardFooter>
           </Card>

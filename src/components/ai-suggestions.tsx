@@ -193,8 +193,7 @@ export function AISuggestions({
           )}
           <Button 
             variant="outline" 
-            size="sm" 
-            className="gap-2 border-primary/20 hover:bg-primary/5"
+            className="gap-2 border-primary/20 hover:bg-primary/5 px-4 py-3 font-medium h-auto"
             onClick={handleRefresh}
             disabled={isGenerating}
           >
@@ -268,14 +267,14 @@ export function AISuggestions({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <h4 className="font-bold text-lg text-red-700 leading-tight">
+                  <h4 className="font-bold text-lg text-red-700 leading-tight my-1">
                     {masState.immediate_priority.topic.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                   </h4>
-                  <p className="text-xs text-red-600/80 leading-relaxed">
+                  <p className="text-xs text-red-600/80 leading-relaxed my-2">
                     {masState.immediate_priority.reason}
                   </p>
-                  <Button variant="destructive" size="sm" className="w-full mt-2" onClick={() => window.location.hash = "#reading"}>
-                    Fix This Now
+                  <Button variant="destructive" className="w-full mt-4 py-3 font-bold shadow-lg shadow-red-500/20 h-auto" onClick={() => window.location.hash = "#reading"}>
+                    <div className="my-1">Fix This Now</div>
                   </Button>
                 </CardContent>
               </Card>
@@ -295,7 +294,7 @@ export function AISuggestions({
                   )}>
                     {masState.confidence_score.rating} Level
                   </Badge>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed italic">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed italic my-2">
                     "{masState.confidence_score.explanation}"
                   </p>
                 </CardContent>
